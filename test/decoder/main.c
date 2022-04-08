@@ -44,6 +44,9 @@
 #include <signal.h>
 #endif
 
+#ifndef IOS
+#include <malloc.h>
+#endif
 #ifdef IOS_DISPLAY
 #include "cast_types.h"
 #else
@@ -450,12 +453,7 @@ void app_aligned_free(void *pv_buf)
 #if (!defined(IOS)) && (!defined(_WIN32))
 void* app_aligned_malloc(WORD32 alignment, WORD32 size)
 {
-    void *buf = NULL;
-    if (0 != posix_memalign(&buf, alignment, size))
-    {
-        return NULL;
-    }
-    return buf;
+    return memalign(alignment, size);
 }
 
 void app_aligned_free(void *pv_buf)
