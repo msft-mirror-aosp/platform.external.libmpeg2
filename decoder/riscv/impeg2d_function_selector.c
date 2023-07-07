@@ -78,5 +78,5 @@ void impeg2d_init_arch(void *pv_codec)
 {
     dec_state_t *ps_codec = (dec_state_t *)pv_codec;
 
-    ps_codec->e_processor_arch = ARCH_NA;
+    ps_codec->e_processor_arch = ARCH_RISCV_GENERIC;
 }
