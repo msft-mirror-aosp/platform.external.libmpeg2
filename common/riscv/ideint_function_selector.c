@@ -106,5 +106,5 @@ void ideint_init_function_ptr(ctxt_t *ps_ctxt)
 */
 ICV_ARCH_T ideint_default_arch(void)
 {
-    return ICV_MIPS_GENERIC;
+    return ICV_RISCV_GENERIC;
 }
