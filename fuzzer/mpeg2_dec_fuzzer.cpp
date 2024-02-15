@@ -84,6 +84,7 @@ class Codec {
   uint32_t mWidth;
   uint32_t mHeight;
   uint32_t mDeinterlace;
+  uint32_t mKeepThreadsActive;
   iv_mem_rec_t *mMemRecords;
 };
 
@@ -94,6 +95,7 @@ Codec::Codec(IV_COLOR_FORMAT_T colorFormat, size_t numCores) {
   mWidth = 0;
   mHeight = 0;
   mDeinterlace = 1;
+  mKeepThreadsActive = 1;
   memset(&mOutBufHandle, 0, sizeof(mOutBufHandle));
 }
 
@@ -134,6 +136,7 @@ void Codec::createCodec() {
   fill_mem_ip.s_ivd_fill_mem_rec_ip_t.u4_max_frm_ht = MAX_FRAME_HEIGHT;
   fill_mem_ip.u4_share_disp_buf = 0;
   fill_mem_ip.u4_deinterlace = mDeinterlace;
+  fill_mem_ip.u4_keep_threads_active = mKeepThreadsActive;
   fill_mem_ip.e_output_format = mColorFormat;
 
   fill_mem_ip.s_ivd_fill_mem_rec_ip_t.u4_size =
@@ -180,6 +183,7 @@ void Codec::createCodec() {
 
   init_ip.u4_share_disp_buf = 0;
   init_ip.u4_deinterlace = mDeinterlace;
+  init_ip.u4_keep_threads_active = mKeepThreadsActive;
   init_ip.s_ivd_init_ip_t.u4_num_mem_rec = numMemRecords;
   init_ip.s_ivd_init_ip_t.e_output_format = mColorFormat;
   init_ip.s_ivd_init_ip_t.u4_size = sizeof(impeg2d_init_ip_t);
@@ -331,7 +335,9 @@ void Codec::allocFrame() {
 void Codec::decodeHeader(const uint8_t *data, size_t size) {
   setParams(IVD_DECODE_HEADER);
 
-  while (size > 0) {
+  size_t numDecodeCalls = 0;
+
+  while (size > 0 && numDecodeCalls < kMaxNumDecodeCalls) {
     IV_API_CALL_STATUS_T ret;
     ivd_video_decode_ip_t dec_ip;
     ivd_video_decode_op_t dec_op;
@@ -358,6 +364,7 @@ void Codec::decodeHeader(const uint8_t *data, size_t size) {
 
     data += bytes_consumed;
     size -= bytes_consumed;
+    numDecodeCalls++;
 
     mWidth = std::min(dec_op.u4_pic_wd, (UWORD32)10240);
     mHeight = std::min(dec_op.u4_pic_ht, (UWORD32)10240);
