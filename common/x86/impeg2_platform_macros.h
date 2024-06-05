@@ -21,10 +21,8 @@
 #define __IMPEG2_PLATFORM_MACROS_H__
 
 
-#define     CONV_LE_TO_BE(u4_temp2,u4_temp1)    u4_temp2 = (u4_temp1 << 24) |               \
-                                                           ((u4_temp1 & 0xff00) << 8) |     \
-                                                           ((u4_temp1 & 0xff0000) >> 8) |   \
-                                                           (u4_temp1 >> 24);
+#define CONV_LE_TO_BE(u4_temp2,u4_temp1) u4_temp2 =  __builtin_bswap32(u4_temp1);
+
 static __inline UWORD32 CLZ(UWORD32 u4_word)
 {
     if(u4_word)
@@ -43,7 +41,5 @@ static __inline UWORD32 CLZ(UWORD32 u4_word)
 #define CLIP_U16(x) ((x) > 65535) ? (65535) : (((x) < 0) ? (0) : (x))
 #define CLIP_S16(x) ((x) > 32767) ? (32767) : (((x) < -32768) ? (-32768) : (x))
 #define PLD(x)
-
-#define INLINE
 
 #endif /* __IMPEG2_PLATFORM_MACROS_H__ */
